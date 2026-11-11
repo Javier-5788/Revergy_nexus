@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// Agrega aquí los modelos de Revergy Nexus.
+// MariaDB utiliza el proveedor "mysql" en Prisma.
