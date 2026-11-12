@@ -5,18 +5,18 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-public class AutenticacionService {
+export class AutenticacionService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 
   async login(loginDto: LoginDto) {
-    const { correo, password } = loginDto;
+    const { correo_usuario, password_hash } = loginDto;
 
     // 1. Buscar el usuario por correo
     const usuario = await this.prisma.usuario.findUnique({
-      where: { correo },
+      where: { correo_usuario },
     });
 
     if (!usuario) {
@@ -24,22 +24,22 @@ public class AutenticacionService {
     }
 
     // 2. Verificar la contraseña
-    const esPasswordValida = await bcrypt.compare(password, usuario.password);
+    const esPasswordValida = await bcrypt.compare(password_hash, usuario.password_hash);
 
     if (!esPasswordValida) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     // 3. Generar el token JWT
-    const payload = { sub: usuario.id, correo: usuario.correo };
+    const payload = { sub: usuario.id, correo_usuario: usuario.correo_usuario };
     const token = this.jwtService.sign(payload);
 
     return {
       mensaje: 'Inicio de sesión exitoso',
       access_token: token,
       usuario: {
-        id: usuario.id,
-        correo: usuario.correo,
+        id_usuario: usuario.id_usuario,
+        correo_usuario: usuario.correo_usuario,
       },
     };
   }
