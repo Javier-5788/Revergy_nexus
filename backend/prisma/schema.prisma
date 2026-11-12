@@ -1,0 +1,360 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model empresas {
+  id_empresa            Int                     @id @default(autoincrement())
+  nombre                String                  @db.VarChar(255)
+  codigo_empresa        String                  @unique(map: "uk_codigo_empresa") @db.VarChar(50)
+  tipo_empresa          empresas_tipo_empresa
+  estado_empresa        empresas_estado_empresa @default(Activo)
+  fecha_creacion        DateTime                @default(now()) @db.DateTime(0)
+  proyectos_cliente     proyecto[]              @relation("empresa_cliente")
+  proyectos_contratista proyecto[]              @relation("empresa_contratista")
+
+  @@map("empresas")
+}
+
+model usuario {
+  id_usuario                                                                        Int                         @id @default(autoincrement())
+  nombre_usuario                                                                    String                      @db.VarChar(150)
+  correo_usuario                                                                    String                      @unique(map: "uk_correo_usuario") @db.VarChar(150)
+  password_hash                                                                     String                      @db.VarChar(255)
+  estado_usuario                                                                    usuario_estado_usuario      @default(Activo)
+  auditoria                                                                         auditoria[]
+  comentario_documento                                                              comentario_documento[]
+  documento                                                                         documento[]
+  documento_version                                                                 documento_version[]
+  historial_responsabilidad_historial_responsabilidad_responsable_anteriorTousuario historial_responsabilidad[] @relation("historial_responsabilidad_responsable_anteriorTousuario")
+  historial_responsabilidad_historial_responsabilidad_responsable_nuevoTousuario    historial_responsabilidad[] @relation("historial_responsabilidad_responsable_nuevoTousuario")
+  usuario_proyecto                                                                  usuario_proyecto[]
+
+  @@map("usuario")
+}
+
+model rol {
+  id_rol           Int                @id @default(autoincrement())
+  nombre           String             @unique(map: "uk_nombre_rol") @db.VarChar(100)
+  descripcion      String?            @db.Text
+  usuario_proyecto usuario_proyecto[]
+
+  @@map("rol")
+}
+
+model proyecto {
+  id_proyecto                 Int                           @id @default(autoincrement())
+  empresa_cliente_id          Int
+  empresa_contratista_id      Int
+  nombre_proyecto             String                        @db.VarChar(255)
+  codigo_proyecto             String                        @unique(map: "uk_codigo_proyecto") @db.VarChar(50)
+  especialidad                proyecto_especialidad
+  naturaleza_tecnica          proyecto_naturaleza_tecnica
+  Tama_o                      Decimal?                      @map("Tamaño") @db.Decimal(10, 2)
+  version_final               String                        @default("0") @db.VarChar(20)
+  estado_proyecto             proyecto_estado_proyecto      @default(Planificaci_n)
+  fecha_inicio                DateTime                      @db.Date
+  fecha_fin                   DateTime?                     @db.Date
+  documento                   documento[]
+  cliente                     empresas                      @relation("empresa_cliente", fields: [empresa_cliente_id], references: [id_empresa], map: "fk_proyecto_cliente")
+  contratista                 empresas                      @relation("empresa_contratista", fields: [empresa_contratista_id], references: [id_empresa], map: "fk_proyecto_contratista")
+  proyecto_componentes_codigo proyecto_componentes_codigo[]
+  proyectos_entregable        proyectos_entregable[]
+  usuarios                    usuario_proyecto[]
+
+  @@index([empresa_cliente_id], map: "idx_proyecto_cliente")
+  @@index([empresa_contratista_id], map: "idx_proyecto_contratista")
+  @@map("proyecto")
+}
+
+model usuario_proyecto {
+  id_usuario_proyecto Int      @id @default(autoincrement())
+  usuario_id          Int
+  proyecto_id         Int
+  rol_id              Int
+  proyecto            proyecto @relation(fields: [proyecto_id], references: [id_proyecto], onDelete: Cascade, map: "fk_up_proyecto")
+  rol                 rol      @relation(fields: [rol_id], references: [id_rol], map: "fk_up_rol")
+  usuario             usuario  @relation(fields: [usuario_id], references: [id_usuario], onDelete: Cascade, map: "fk_up_usuario")
+
+  @@unique([usuario_id, proyecto_id, rol_id], map: "uk_usuario_proyecto_rol")
+  @@index([proyecto_id], map: "idx_up_proyecto")
+  @@index([rol_id], map: "idx_up_rol")
+  @@index([usuario_id], map: "idx_up_usuario")
+  @@map("usuario_proyecto")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model auditoria {
+  id_auditoria    Int      @id @default(autoincrement())
+  usuario_id      Int?
+  modulo          String   @db.VarChar(100)
+  accion          String   @db.VarChar(50)
+  registro_id     Int?
+  fecha_auditoria DateTime @default(now()) @db.DateTime(0)
+  ip              String   @db.VarChar(45)
+  descripcion     String?  @db.Text
+  usuario         usuario? @relation(fields: [usuario_id], references: [id_usuario], map: "fk_auditoria_usuario")
+
+  @@index([fecha_auditoria], map: "idx_auditoria_fecha")
+  @@index([modulo], map: "idx_auditoria_modulo")
+  @@index([usuario_id], map: "idx_auditoria_usuario")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model categoria {
+  id_categoria     Int         @id @default(autoincrement())
+  codigo_categoria String      @unique(map: "uk_codigo_categoria") @db.VarChar(50)
+  nombre_categoria String      @db.VarChar(150)
+  documento        documento[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model comentario_documento {
+  id_com_doc      Int       @id @default(autoincrement())
+  documento_id    Int
+  usuario_id      Int
+  mensaje         String    @db.Text
+  archivo_adjunto String?   @db.VarChar(500)
+  fecha           DateTime  @default(now()) @db.DateTime(0)
+  documento       documento @relation(fields: [documento_id], references: [id_documento], onDelete: Cascade, map: "fk_cd_documento")
+  usuario         usuario   @relation(fields: [usuario_id], references: [id_usuario], map: "fk_cd_usuario")
+
+  @@index([documento_id], map: "idx_cd_documento")
+  @@index([usuario_id], map: "idx_cd_usuario")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model documento {
+  id_documento              Int                         @id @default(autoincrement())
+  proyecto_id               Int
+  codigo_documento          String                      @db.VarChar(100)
+  nombre_documento          String                      @db.VarChar(255)
+  tipo_documento_id         Int
+  categoria_id              Int
+  infraestructura_id        Int
+  fase_id                   Int
+  version_id                Int
+  revision_id               Int
+  consecutivo               Int
+  ruta_archivo              String?                     @db.VarChar(500)
+  id_est_documento          Int
+  responsable_actual        Int?
+  fecha_creacion            DateTime                    @default(now()) @db.DateTime(0)
+  comentario_documento      comentario_documento[]
+  categoria                 categoria                   @relation(fields: [categoria_id], references: [id_categoria], map: "fk_doc_categoria")
+  estado_documento          estado_documento            @relation(fields: [id_est_documento], references: [id_est_documento], map: "fk_doc_estado")
+  fase                      fase                        @relation(fields: [fase_id], references: [id_fase], map: "fk_doc_fase")
+  infraestructura           infraestructura             @relation(fields: [infraestructura_id], references: [id_infraestructura], map: "fk_doc_infraestructura")
+  proyecto                  proyecto                    @relation(fields: [proyecto_id], references: [id_proyecto], onDelete: Cascade, map: "fk_doc_proyecto")
+  usuario                   usuario?                    @relation(fields: [responsable_actual], references: [id_usuario], map: "fk_doc_responsable")
+  revision                  revision                    @relation(fields: [revision_id], references: [id_revision], map: "fk_doc_revision")
+  tipo_documento            tipo_documento              @relation(fields: [tipo_documento_id], references: [id_tipo_documento], map: "fk_doc_tipo")
+  version                   version                     @relation(fields: [version_id], references: [id_version], map: "fk_doc_version")
+  documento_version         documento_version[]
+  historial_responsabilidad historial_responsabilidad[]
+
+  @@unique([proyecto_id, codigo_documento], map: "uk_proyecto_codigo_doc")
+  @@index([categoria_id], map: "idx_doc_categoria")
+  @@index([id_est_documento], map: "idx_doc_estado")
+  @@index([fase_id], map: "idx_doc_fase")
+  @@index([infraestructura_id], map: "idx_doc_infraestructura")
+  @@index([proyecto_id], map: "idx_doc_proyecto")
+  @@index([responsable_actual], map: "idx_doc_responsable")
+  @@index([revision_id], map: "idx_doc_revision")
+  @@index([tipo_documento_id], map: "idx_doc_tipo")
+  @@index([version_id], map: "idx_doc_version")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model documento_version {
+  id_doc_ver   Int       @id @default(autoincrement())
+  documento_id Int
+  version_id   Int
+  revision_id  Int
+  ruta_archivo String    @db.VarChar(500)
+  comentario   String?   @db.Text
+  fecha_carga  DateTime  @default(now()) @db.DateTime(0)
+  usuario_id   Int
+  documento    documento @relation(fields: [documento_id], references: [id_documento], onDelete: Cascade, map: "fk_dv_documento")
+  revision     revision  @relation(fields: [revision_id], references: [id_revision], map: "fk_dv_revision")
+  usuario      usuario   @relation(fields: [usuario_id], references: [id_usuario], map: "fk_dv_usuario")
+  version      version   @relation(fields: [version_id], references: [id_version], map: "fk_dv_version")
+
+  @@index([documento_id], map: "idx_dv_documento")
+  @@index([revision_id], map: "idx_dv_revision")
+  @@index([usuario_id], map: "idx_dv_usuario")
+  @@index([version_id], map: "idx_dv_version")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model entregable {
+  id_entregable        Int                          @id @default(autoincrement())
+  codigo_entregable    String                       @unique(map: "uk_codigo_entregable") @db.VarChar(50)
+  nombre_entregable    String                       @db.VarChar(255)
+  tipo_documento_id    Int
+  estado_entregable    entregable_estado_entregable @default(Activo)
+  tipo_documento       tipo_documento               @relation(fields: [tipo_documento_id], references: [id_tipo_documento], map: "fk_entregable_tipo_doc")
+  proyectos_entregable proyectos_entregable[]
+
+  @@index([tipo_documento_id], map: "idx_entregable_tipo_doc")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model estado_documento {
+  id_est_documento        Int         @id @default(autoincrement())
+  codigo_est_documento    String      @unique(map: "uk_codigo_est_doc") @db.VarChar(50)
+  nombre_estado_documento String      @db.VarChar(100)
+  documento               documento[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fase {
+  id_fase     Int         @id @default(autoincrement())
+  codigo_fase String      @unique(map: "uk_codigo_fase") @db.VarChar(50)
+  nombre_fase String      @db.VarChar(150)
+  documento   documento[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model historial_responsabilidad {
+  id_hist_responsabilidad                                         Int       @id @default(autoincrement())
+  documento_id                                                    Int
+  responsable_anterior                                            Int?
+  responsable_nuevo                                               Int
+  fecha_modificacion                                              DateTime  @default(now()) @db.DateTime(0)
+  comentario                                                      String?   @db.Text
+  usuario_historial_responsabilidad_responsable_anteriorTousuario usuario?  @relation("historial_responsabilidad_responsable_anteriorTousuario", fields: [responsable_anterior], references: [id_usuario], map: "fk_hr_anterior")
+  documento                                                       documento @relation(fields: [documento_id], references: [id_documento], onDelete: Cascade, map: "fk_hr_documento")
+  usuario_historial_responsabilidad_responsable_nuevoTousuario    usuario   @relation("historial_responsabilidad_responsable_nuevoTousuario", fields: [responsable_nuevo], references: [id_usuario], map: "fk_hr_nuevo")
+
+  @@index([responsable_anterior], map: "idx_hr_anterior")
+  @@index([documento_id], map: "idx_hr_documento")
+  @@index([responsable_nuevo], map: "idx_hr_nuevo")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model infraestructura {
+  id_infraestructura     Int                                    @id @default(autoincrement())
+  codigo_infraestructura String                                 @unique(map: "uk_codigo_infraestructura") @db.VarChar(50)
+  nombre_infraestructura String                                 @db.VarChar(150)
+  estado_infraestructura infraestructura_estado_infraestructura @default(Activo)
+  documento              documento[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model proyecto_componentes_codigo {
+  id_pro_comp_cod    Int                                            @id @default(autoincrement())
+  proyecto_id        Int
+  componente         String                                         @db.VarChar(100)
+  orden_pro_com_cod  Int
+  estado_pro_com_cod proyecto_componentes_codigo_estado_pro_com_cod @default(Activo)
+  proyecto           proyecto                                       @relation(fields: [proyecto_id], references: [id_proyecto], onDelete: Cascade, map: "fk_pcc_proyecto")
+
+  @@index([proyecto_id], map: "idx_pcc_proyecto")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model proyectos_entregable {
+  id_proyecto_entregable Int                         @id @default(autoincrement())
+  proyecto_id            Int
+  entregable_id          Int
+  obligatorio            Boolean                     @default(true)
+  responsable_inicial    String?                     @db.VarChar(150)
+  estado                 proyectos_entregable_estado @default(Pendiente)
+  entregable             entregable                  @relation(fields: [entregable_id], references: [id_entregable], map: "fk_pe_entregable")
+  proyecto               proyecto                    @relation(fields: [proyecto_id], references: [id_proyecto], onDelete: Cascade, map: "fk_pe_proyecto")
+
+  @@unique([proyecto_id, entregable_id], map: "uk_proyecto_entregable")
+  @@index([entregable_id], map: "idx_pe_entregable")
+  @@index([proyecto_id], map: "idx_pe_proyecto")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model revision {
+  id_revision       Int                 @id @default(autoincrement())
+  codigo_revision   String              @unique(map: "uk_codigo_revision") @db.VarChar(20)
+  orden_revision    Int
+  documento         documento[]
+  documento_version documento_version[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tipo_documento {
+  id_tipo_documento Int          @id @default(autoincrement())
+  codigo_documento  String       @unique(map: "uk_codigo_tipo_doc") @db.VarChar(10)
+  nombre_documento  String       @db.VarChar(150)
+  documento         documento[]
+  entregable        entregable[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model version {
+  id_version        Int                 @id @default(autoincrement())
+  codigo_version    String              @unique(map: "uk_codigo_version") @db.VarChar(20)
+  orden_version     Int
+  es_final          Boolean             @default(false)
+  documento         documento[]
+  documento_version documento_version[]
+}
+
+enum empresas_tipo_empresa {
+  Cliente
+  Contratista
+}
+
+enum infraestructura_estado_infraestructura {
+  Activo
+  Inactivo
+}
+
+enum empresas_estado_empresa {
+  Activo
+  Inactivo
+}
+
+enum entregable_estado_entregable {
+  Activo
+  Inactivo
+}
+
+enum proyecto_componentes_codigo_estado_pro_com_cod {
+  Activo
+  Inactivo
+}
+
+enum usuario_estado_usuario {
+  Activo
+  Inactivo
+  Bloqueado
+}
+
+enum proyecto_especialidad {
+  Solar
+  Eolico
+  Bess
+  Sets
+}
+
+enum proyectos_entregable_estado {
+  Pendiente
+  En_Proceso @map("En Proceso")
+  Completado
+}
+
+enum proyecto_naturaleza_tecnica {
+  Gestion
+  Interventoria_Ingenieria   @map("Interventoria Ingenieria")
+  Interventoria_Construccion @map("Interventoria Construccion")
+  Interventoria_I_C          @map("Interventoria I+C")
+}
+
+enum proyecto_estado_proyecto {
+  Planificaci_n @map("Planificación")
+  En_Ejecuci_n  @map("En Ejecución")
+  Suspendido
+  Cerrado
+}
