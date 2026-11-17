@@ -5,12 +5,18 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  throw new Error('La variable de entorno JWT_SECRET es obligatoria');
+}
+
 @Module({
   imports: [
     PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'revergy_nexus_secret_key',
+      secret: jwtSecret,
       signOptions: { expiresIn: '8h' }, // El token expira en 8 horas
     }),
   ],

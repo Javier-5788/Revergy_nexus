@@ -12,7 +12,7 @@ export class AutenticacionService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    const { correo_usuario, password_hash } = loginDto;
+    const { correo_usuario, password} = loginDto;
 
     // 1. Buscar el usuario por correo
     const usuario = await this.prisma.usuario.findUnique({
@@ -23,15 +23,19 @@ export class AutenticacionService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    if (usuario.estado_usuario !== 'Activo') {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
     // 2. Verificar la contraseña
-    const esPasswordValida = await bcrypt.compare(password_hash, usuario.password_hash);
+    const esPasswordValida = await bcrypt.compare(password, usuario.password_hash);
 
     if (!esPasswordValida) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     // 3. Generar el token JWT
-    const payload = { sub: usuario.id, correo_usuario: usuario.correo_usuario };
+    const payload = { sub: usuario.id_usuario, correo_usuario: usuario.correo_usuario };
     const token = this.jwtService.sign(payload);
 
     return {

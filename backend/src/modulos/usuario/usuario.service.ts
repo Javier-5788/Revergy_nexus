@@ -11,7 +11,14 @@ export class UsuarioService {
 
   async obtenerUsuarios() {
 
-    return this.prisma.usuario.findMany();
+    return this.prisma.usuario.findMany({
+      select: {
+        id_usuario: true,
+        nombre_usuario: true,
+        correo_usuario: true,
+        estado_usuario: true,
+      },
+    });
 
   }
 
