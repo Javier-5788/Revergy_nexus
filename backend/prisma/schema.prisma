@@ -338,7 +338,8 @@ model usuario_proyecto {
   usuario             usuario  @relation(fields: [usuario_id], references: [id_usuario], onDelete: Cascade, map: "fk_up_usuario")
 
   @@unique([usuario_id, proyecto_id, rol_id], map: "uk_usuario_proyecto_rol")
-  @@index([proyecto_id], map: "idx_up_proyecto")
+  @@index([proye
+  cto_id], map: "idx_up_proyecto")
   @@index([rol_id], map: "idx_up_rol")
   @@index([usuario_id], map: "idx_up_usuario")
 }

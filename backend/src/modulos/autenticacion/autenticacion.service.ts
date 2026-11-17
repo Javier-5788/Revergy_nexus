@@ -47,4 +47,81 @@ export class AutenticacionService {
       },
     };
   }
+
+  async obtenerMisProyectos(usuarioId: number) {
+  return this.prisma.usuario_proyecto.findMany({
+
+    where: {
+      usuario_id: usuarioId,
+    },
+
+    include: {
+
+      proyecto: true,
+
+      rol: true,
+
+    },
+
+    orderBy: {
+
+      proyecto_id: 'asc',
+
+    },
+
+  });
+
+  }
+
+  async seleccionarProyecto(
+  usuarioId: number,
+  proyectoId: number,
+) {
+
+  const relacion =
+    await this.prisma.usuario_proyecto.findFirst({
+
+      where: {
+
+        usuario_id: usuarioId,
+
+        proyecto_id: proyectoId,
+
+      },
+
+      include: {
+
+        proyecto: true,
+
+        rol: true,
+
+      },
+
+    });
+
+  if (!relacion) {
+
+    throw new UnauthorizedException(
+      'No tiene acceso a este proyecto',
+    );
+
+  }
+
+  return {
+
+    proyecto_id:
+      relacion.proyecto.id_proyecto,
+
+    codigo_proyecto:
+      relacion.proyecto.codigo_proyecto,
+
+    nombre_proyecto:
+      relacion.proyecto.nombre_proyecto,
+
+    rol:
+      relacion.rol.nombre,
+
+  };
+
+}
 }

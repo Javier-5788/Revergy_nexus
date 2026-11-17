@@ -4,6 +4,7 @@ import { AutenticacionService } from './autenticacion.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -21,6 +22,6 @@ if (!jwtSecret) {
     }),
   ],
   controllers: [AutenticacionController],
-  providers: [AutenticacionService],
+  providers: [AutenticacionService, JwtStrategy],
 })
 export class AutenticacionModule {}
