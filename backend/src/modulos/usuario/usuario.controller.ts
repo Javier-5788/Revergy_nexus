@@ -5,7 +5,11 @@ import {
 
 import { UsuarioService } from './usuario.service';
 
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard';
+
 @Controller('usuarios')
+@UseGuards(JwtAuthGuard)
 export class UsuarioController {
 
   constructor(

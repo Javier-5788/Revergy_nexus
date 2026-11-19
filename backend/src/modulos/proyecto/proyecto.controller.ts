@@ -6,6 +6,8 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ProyectoService }
@@ -18,7 +20,10 @@ import { ActualizarProyectoDto }
 from './dto/actualizar-proyecto.dto';
 
 
+import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard';
+
 @Controller('proyecto')
+@UseGuards(JwtAuthGuard)
 export class ProyectoController {
 
   constructor(
@@ -27,11 +32,10 @@ export class ProyectoController {
   ) {}
 
   @Get()
-  obtenerProyectos() {
-
-    return this.proyectoService
-      .obtenerProyectos();
-
+  obtenerProyectos(@Request() req) {
+    return this.proyectoService.obtenerProyectos(
+      req.user.userId,
+    );
   }
 
   @Get(':id')
@@ -44,7 +48,7 @@ export class ProyectoController {
   ) {
 
     return this.proyectoService
-      .obtenerProyectoPorId(id);
+      .obtenerProyectos(id);
 
   }
 
@@ -75,5 +79,6 @@ export class ProyectoController {
       .actualizarProyecto(id, datos);
 
   }
+ 
 
 }

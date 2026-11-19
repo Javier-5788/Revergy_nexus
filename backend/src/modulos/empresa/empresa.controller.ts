@@ -17,7 +17,11 @@ from './dto/crear-empresa.dto';
 import { ActualizarEmpresaDto }
 from './dto/actualizar-empresa.dto';
 
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard';
+
 @Controller('empresa')
+@UseGuards(JwtAuthGuard)
 export class EmpresaController {
 
   constructor(

@@ -16,41 +16,25 @@ export class ProyectoService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async obtenerProyectos() {
-
+  async obtenerProyectos(usuarioId: number) {
     return this.prisma.proyecto.findMany({
-
-      include: {
-        cliente: true,
-        contratista: true,
-      },
-
-      orderBy: {
-        nombre_proyecto: 'asc',
-      },
-
-    });
-
-  }
-
-  async obtenerProyectoPorId(
-    id: number,
-  ) {
-
-    return this.prisma.proyecto.findUnique({
-
       where: {
-        id_proyecto: id,
+        usuario_proyecto: {
+          some: {
+            usuario_id: usuarioId,
+          },
+        },
       },
+    include: {
+      cliente: true,
+      contratista: true,
+    },
+    orderBy: {
+      nombre_proyecto: 'asc',
+    },
+  });
+}
 
-      include: {
-        cliente: true,
-        contratista: true,
-      },
-
-    });
-
-  }
 
   async crearProyecto(
     datos: CrearProyectoDto,
