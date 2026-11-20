@@ -1,10 +1,17 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CrearDocumentoDto } from './dto/crear-documento.dto';
+import { DocumentCodeParser } from '../../common/document-parser/document-code.parser';
+import { DocumentCodeValidatorService } from '../../common/document-parser/document-code-validator.service';
+
+
 
 @Injectable()
 export class DocumentoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly documentCodeValidator: DocumentCodeValidatorService,
+  ) { }
 
   async obtenerDocumentos() {
     return this.prisma.documento.findMany({
@@ -79,5 +86,29 @@ export class DocumentoService {
         responsable_actual: dto.responsable_actual,
       },
     });
+  }
+
+  async validarNombreArchivo(
+    nombreArchivo: string,
+  ) {
+
+    const codigo =
+      DocumentCodeParser.parse(
+        nombreArchivo,
+      );
+
+    const resultado =
+      await this.documentCodeValidator.validar(
+        codigo,
+      );
+
+    return {
+
+      codigo,
+
+      ...resultado,
+
+    };
+
   }
 }

@@ -34,22 +34,29 @@ model categoria {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model comentario_documento {
-  id_com_doc           Int       @id @default(autoincrement())
-  documento_id         Int
-  usuario_id           Int
-  mensaje              String    @db.Text
-  archivo_adjunto      String?   @db.VarChar(500)
-  fecha                DateTime  @default(now()) @db.DateTime(0)
-  estado_comentario_id Int?
-  usuario_atencion     Int?
-  fecha_atencion       DateTime? @db.DateTime(0)
-  usuario_cierre       Int?
-  fecha_cierre         DateTime? @db.DateTime(0)
-  documento            documento @relation(fields: [documento_id], references: [id_documento], onDelete: Cascade, map: "fk_cd_documento")
-  usuario              usuario   @relation(fields: [usuario_id], references: [id_usuario], map: "fk_cd_usuario")
+  id_com_doc                                             Int                    @id @default(autoincrement())
+  documento_id                                           Int
+  usuario_id                                             Int
+  mensaje                                                String                 @db.Text
+  archivo_adjunto                                        String?                @db.VarChar(500)
+  fecha                                                  DateTime               @default(now()) @db.DateTime(0)
+  estado_comentario_id                                   Int?
+  usuario_atencion                                       Int?
+  fecha_atencion                                         DateTime?              @db.DateTime(0)
+  usuario_cierre                                         Int?
+  fecha_cierre                                           DateTime?              @db.DateTime(0)
+  documento                                              documento              @relation(fields: [documento_id], references: [id_documento], onDelete: Cascade, map: "fk_cd_documento")
+  estado_comentario                                      estado_comentario?     @relation(fields: [estado_comentario_id], references: [id_estado_comentario], onDelete: Restrict, onUpdate: Restrict, map: "fk_cd_estado_comentario")
+  usuario                                                usuario                @relation(fields: [usuario_id], references: [id_usuario], map: "fk_cd_usuario")
+  usuario_comentario_documento_usuario_atencionTousuario usuario?               @relation("comentario_documento_usuario_atencionTousuario", fields: [usuario_atencion], references: [id_usuario], onDelete: Restrict, onUpdate: Restrict, map: "fk_cd_usuario_atencion")
+  usuario_comentario_documento_usuario_cierreTousuario   usuario?               @relation("comentario_documento_usuario_cierreTousuario", fields: [usuario_cierre], references: [id_usuario], onDelete: Restrict, onUpdate: Restrict, map: "fk_cd_usuario_cierre")
+  historial_comentario                                   historial_comentario[]
 
   @@index([documento_id], map: "idx_cd_documento")
   @@index([usuario_id], map: "idx_cd_usuario")
+  @@index([estado_comentario_id], map: "fk_cd_estado_comentario")
+  @@index([usuario_atencion], map: "fk_cd_usuario_atencion")
+  @@index([usuario_cierre], map: "fk_cd_usuario_cierre")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -141,9 +148,12 @@ model entregable {
 }
 
 model estado_comentario {
-  id_estado_comentario Int     @id @default(autoincrement())
-  codigo_estado        String? @db.VarChar(25)
-  nombre_estado        String? @db.VarChar(100)
+  id_estado_comentario                                                            Int                    @id @default(autoincrement())
+  codigo_estado                                                                   String?                @db.VarChar(25)
+  nombre_estado                                                                   String?                @db.VarChar(100)
+  comentario_documento                                                            comentario_documento[]
+  historial_comentario_historial_comentario_estado_anterior_idToestado_comentario historial_comentario[] @relation("historial_comentario_estado_anterior_idToestado_comentario")
+  historial_comentario_historial_comentario_estado_nuevo_idToestado_comentario    historial_comentario[] @relation("historial_comentario_estado_nuevo_idToestado_comentario")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -163,13 +173,22 @@ model fase {
 }
 
 model historial_comentario {
-  id_historial_comentario Int      @id @default(autoincrement())
-  comentario_id           Int
-  estado_anterior_id      Int?
-  estado_nuevo_id         Int
-  usuario_id              Int
-  fecha_movimiento        DateTime @db.DateTime(0)
-  observacion             String?  @db.Text
+  id_historial_comentario                                                      Int                  @id @default(autoincrement())
+  comentario_id                                                                Int
+  estado_anterior_id                                                           Int?
+  estado_nuevo_id                                                              Int
+  usuario_id                                                                   Int
+  fecha_movimiento                                                             DateTime             @db.DateTime(0)
+  observacion                                                                  String?              @db.Text
+  comentario_documento                                                         comentario_documento @relation(fields: [comentario_id], references: [id_com_doc], onUpdate: Restrict, map: "fk_hc_comentario")
+  estado_comentario_historial_comentario_estado_anterior_idToestado_comentario estado_comentario?   @relation("historial_comentario_estado_anterior_idToestado_comentario", fields: [estado_anterior_id], references: [id_estado_comentario], onDelete: Restrict, onUpdate: Restrict, map: "fk_hc_estado_anterior")
+  estado_comentario_historial_comentario_estado_nuevo_idToestado_comentario    estado_comentario    @relation("historial_comentario_estado_nuevo_idToestado_comentario", fields: [estado_nuevo_id], references: [id_estado_comentario], onUpdate: Restrict, map: "fk_hc_estado_nuevo")
+  usuario                                                                      usuario              @relation(fields: [usuario_id], references: [id_usuario], onUpdate: Restrict, map: "fk_hc_usuario")
+
+  @@index([comentario_id], map: "fk_hc_comentario")
+  @@index([estado_anterior_id], map: "fk_hc_estado_anterior")
+  @@index([estado_nuevo_id], map: "fk_hc_estado_nuevo")
+  @@index([usuario_id], map: "fk_hc_usuario")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -320,8 +339,11 @@ model usuario {
   estado_usuario                                                                    usuario_estado_usuario      @default(Activo)
   auditoria                                                                         auditoria[]
   comentario_documento                                                              comentario_documento[]
+  comentario_documento_comentario_documento_usuario_atencionTousuario               comentario_documento[]      @relation("comentario_documento_usuario_atencionTousuario")
+  comentario_documento_comentario_documento_usuario_cierreTousuario                 comentario_documento[]      @relation("comentario_documento_usuario_cierreTousuario")
   documento                                                                         documento[]
   documento_version                                                                 documento_version[]
+  historial_comentario                                                              historial_comentario[]
   historial_responsabilidad_historial_responsabilidad_responsable_anteriorTousuario historial_responsabilidad[] @relation("historial_responsabilidad_responsable_anteriorTousuario")
   historial_responsabilidad_historial_responsabilidad_responsable_nuevoTousuario    historial_responsabilidad[] @relation("historial_responsabilidad_responsable_nuevoTousuario")
   usuario_proyecto                                                                  usuario_proyecto[]
@@ -351,6 +373,38 @@ model version {
   es_final          Boolean             @default(false)
   documento         documento[]
   documento_version documento_version[]
+}
+
+model hito {
+  id_hito     Int               @id @default(autoincrement())
+  codigo_hito String            @unique(map: "codigo_hito") @db.VarChar(20)
+  nombre_hito String            @db.VarChar(150)
+  estado_hito hito_estado_hito? @default(Activo)
+}
+
+model listado_maestro {
+  id_listado_maestro Int                              @id @default(autoincrement())
+  proyecto_id        Int
+  codigo_documento   String                           @db.VarChar(150)
+  nombre_documento   String                           @db.VarChar(255)
+  infraestructura_id Int
+  fase_id            Int
+  categoria_id       Int
+  tipo_documento_id  Int
+  consecutivo        Int
+  fecha_programada   DateTime?                        @db.Date
+  estado_registro    listado_maestro_estado_registro? @default(Activo)
+
+  @@unique([proyecto_id, codigo_documento], map: "uk_listado_codigo")
+}
+
+model validacion_documento {
+  id_validacion      Int                            @id @default(autoincrement())
+  documento_id       Int
+  resultado          validacion_documento_resultado
+  mensaje            String?                        @db.Text
+  usuario_validacion Int?
+  fecha_validacion   DateTime?                      @default(now()) @db.DateTime(0)
 }
 
 enum tmt_detalle_tipo_registro {
@@ -425,4 +479,20 @@ enum proyecto_estado_proyecto {
   En_Ejecuci_n  @map("En Ejecución")
   Suspendido
   Cerrado
+}
+
+enum validacion_documento_resultado {
+  VALIDO
+  ADVERTENCIA
+  ERROR
+}
+
+enum hito_estado_hito {
+  Activo
+  Inactivo
+}
+
+enum listado_maestro_estado_registro {
+  Activo
+  Inactivo
 }

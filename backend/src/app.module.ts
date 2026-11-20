@@ -8,6 +8,9 @@ import { AutenticacionModule } from './modulos/autenticacion/autenticacion.modul
 import { ProyectoModule } from './modulos/proyecto/proyecto.module';
 import { CatalogosModule } from './modulos/catalogos/catalogos.module';
 import { DocumentoModule } from './modulos/documento/documento.module';
+import { DocumentoVersionModule } from './modulos/documento-version/documento-version.module';
+import { ComentarioDocumentoModule } from './modulos/comentario-documento/comentario-documento.module';
+
 
 @Module({
   imports: [
@@ -18,6 +21,8 @@ import { DocumentoModule } from './modulos/documento/documento.module';
     ProyectoModule,
     CatalogosModule,
     DocumentoModule,
+    DocumentoVersionModule,
+    ComentarioDocumentoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
