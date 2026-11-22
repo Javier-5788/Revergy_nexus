@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 
 import { ProyectoService }
-from './proyecto.service';
+  from './proyecto.service';
 
 import { CrearProyectoDto }
-from './dto/crear-proyecto.dto';
+  from './dto/crear-proyecto.dto';
 
 import { ActualizarProyectoDto }
-from './dto/actualizar-proyecto.dto';
+  from './dto/actualizar-proyecto.dto';
 
 
 import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard';
@@ -29,7 +29,7 @@ export class ProyectoController {
   constructor(
     private readonly proyectoService:
       ProyectoService,
-  ) {}
+  ) { }
 
   @Get()
   obtenerProyectos(@Request() req) {
@@ -38,6 +38,16 @@ export class ProyectoController {
     );
   }
 
+  @Get(":id/resumen")
+  obtenerResumenProyecto(
+    @Param("id", ParseIntPipe) id: number,
+    @Request() req,
+  ) {
+    return this.proyectoService.obtenerResumenProyecto(
+      id,
+      req.user.userId,
+    );
+  }
   @Get(':id')
   obtenerProyectoPorId(
     @Param(
@@ -79,6 +89,6 @@ export class ProyectoController {
       .actualizarProyecto(id, datos);
 
   }
- 
+
 
 }

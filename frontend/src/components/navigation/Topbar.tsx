@@ -35,7 +35,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
                         {proyectoActivo ? "Proyecto activo" : "Gestión de proyectos"}
                     </Typography>
                     {proyectoActivo && (
-                        <Typography variant="subtitle1" fontWeight={700} noWrap>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }} noWrap>
                             {proyectoActivo.nombre_proyecto}
                         </Typography>
                     )}

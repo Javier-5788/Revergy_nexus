@@ -23,6 +23,28 @@ type ApiError = {
     };
 };
 
+function mostrarEstado(estado: string) {
+  const etiquetas: Record<string, string> = {
+    Planificaci_n: "Planificación",
+    En_Ejecuci_n: "En ejecución",
+    Suspendido: "Suspendido",
+    Cerrado: "Cerrado",
+  };
+
+  return etiquetas[estado] ?? estado.replaceAll("_", " ");
+}
+
+function mostrarEspecialidad(especialidad: string) {
+  const etiquetas: Record<string, string> = {
+    Solar: "Solar",
+    Eolico: "Eólico",
+    Bess: "BESS",
+    Sets: "SETS",
+  };
+
+  return etiquetas[especialidad] ?? especialidad.replaceAll("_", " ");
+}
+
 export default function MisProyectosPage() {
     const [proyectos, setProyectos] = useState<ProyectoAsignado[]>([]);
     const [cargando, setCargando] = useState(true);
@@ -146,7 +168,7 @@ export default function MisProyectosPage() {
                                     </Typography>
 
                                     <Typography variant="body2" color="text.secondary">
-                                        {proyecto.especialidad.replaceAll("_", " ")}
+                                        {mostrarEspecialidad(proyecto.especialidad)}
                                     </Typography>
 
                                     <Typography
@@ -154,7 +176,7 @@ export default function MisProyectosPage() {
                                         color="text.secondary"
                                         sx={{ mt: 1 }}
                                     >
-                                        Estado: {proyecto.estado_proyecto.replaceAll("_", " ")}
+                                        Estado: {mostrarEstado(proyecto.estado_proyecto)}
                                     </Typography>
                                 </CardContent>
                             </CardActionArea>

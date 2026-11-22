@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { PrismaService }
 from '../../prisma/prisma.service';
@@ -15,6 +15,59 @@ export class ProyectoService {
   constructor(
     private readonly prisma: PrismaService,
   ) {}
+
+  async obtenerResumenProyecto(proyectoId: number, usuarioId: number) {
+  const asignacion = await this.prisma.usuario_proyecto.findFirst({
+    where: {
+      usuario_id: usuarioId,
+      proyecto_id: proyectoId,
+    },
+    select: {
+      id_usuario_proyecto: true,
+    },
+  });
+
+  if (!asignacion) {
+    throw new ForbiddenException("No tienes acceso a este proyecto");
+  }
+
+  const proyectoFiltro = {
+    documento: {
+      is: {
+        proyecto_id: proyectoId,
+      },
+    },
+  };
+
+  const [totalDocumentos, comentariosAbiertos, comentariosAtendidos, totalTmt] =
+    await Promise.all([
+      this.prisma.documento.count({
+        where: { proyecto_id: proyectoId },
+      }),
+      this.prisma.comentario_documento.count({
+        where: {
+          ...proyectoFiltro,
+          estado_comentario: { is: { codigo_estado: "ABI" } },
+        },
+      }),
+      this.prisma.comentario_documento.count({
+        where: {
+          ...proyectoFiltro,
+          estado_comentario: { is: { codigo_estado: "ATE" } },
+        },
+      }),
+      this.prisma.tmt.count({
+        where: { proyecto_id: proyectoId },
+      }),
+    ]);
+
+  return {
+    totalDocumentos,
+    comentariosAbiertos,
+    comentariosAtendidos,
+    totalTmt,
+  };
+}
 
   async obtenerProyectos(usuarioId: number) {
     return this.prisma.proyecto.findMany({

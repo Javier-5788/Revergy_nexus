@@ -1,18 +1,12 @@
-import {
-  Box,
-  Divider,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from "@mui/material";
+import { Box, Divider, List, ListItemButton, ListItemIcon, ListItemText, Typography, } from "@mui/material";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
+import logoRevergy from "../../assets/1-revergy_cuadrado.jpg";
+import "../../App.css";
 
 const menuItems = [
   { label: "Mis proyectos", path: "/", icon: FolderOutlinedIcon },
@@ -31,12 +25,19 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   const navigate = useNavigate();
 
   return (
-    <Box component="nav" aria-label="Navegación principal">
-      <Box sx={{ px: 2.5, py: 3 }}>
-        <Typography variant="h6" sx={{ color: "primary.main", fontWeight: 800 }}>
-          REVERGY NEXUS
+    <Box className="sidebar-root">
+      <Box className="sidebar-header">
+        <Box
+          component="img"
+          src={logoRevergy}
+          alt="Logo Revergy"
+          translate="no"
+          className="sidebar-logo"
+        />
+        <Typography variant="h6" className="sidebar-title">
+          <Box translate="no">REVERGY NEXUS</Box>
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" className="sidebar-subtitle">
           Gestión documental
         </Typography>
       </Box>
@@ -45,12 +46,13 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
 
       <Typography
         variant="caption"
-        sx={{ display: "block", px: 2.5, pt: 3, pb: 1, color: "text.secondary" }}
+        color="text.secondary"
+        className="sidebar-section-label"
       >
         PROYECTO
       </Typography>
 
-      <List sx={{ px: 1.5, pt: 0 }}>
+      <List className="sidebar-nav-list" disablePadding>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const selected = location.pathname === item.path;

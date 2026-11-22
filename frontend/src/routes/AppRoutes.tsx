@@ -8,6 +8,7 @@ import MisProyectosPage from "../pages/proyectos/MisProyectosPage";
 import TmtPage from "../pages/tmt/TmtPage";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
+import ProyectoActivoRoute from "./ProyectoActivoRoute";
 
 export default function AppRoutes() {
   return (
@@ -20,10 +21,12 @@ export default function AppRoutes() {
         <Route element={<PrivateRoute />}>
           <Route element={<MainLayout />}>
             <Route index element={<MisProyectosPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="documentos" element={<DocumentoListPage />} />
-            <Route path="comentarios" element={<ComentariosPage />} />
-            <Route path="tmt" element={<TmtPage />} />
+            <Route element={<ProyectoActivoRoute />}>
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="documentos" element={<DocumentoListPage />} />
+              <Route path="comentarios" element={<ComentariosPage />} />
+              <Route path="tmt" element={<TmtPage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

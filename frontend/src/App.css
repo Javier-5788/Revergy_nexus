@@ -182,3 +182,56 @@
     border-right-color: var(--border);
   }
 }
+
+/* =========================================================
+   Estilos de Revergy Nexus (Sidebar, Logo y Navegación)
+   ========================================================= */
+
+.sidebar-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidebar-header {
+  padding: 20px;
+}
+
+.sidebar-logo {
+  height: 32px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.sidebar-title {
+  font-weight: 800 !important;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-subtitle {
+  margin-top: 2px;
+}
+
+.sidebar-section-label {
+  padding: 16px 20px 6px;
+  display: block;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px;
+}
+
+.sidebar-nav-list {
+  padding: 4px 12px;
+}
+
+.sidebar-nav-item {
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+}
