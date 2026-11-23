@@ -1,28 +1,18 @@
-import {
-  IsInt,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Type } from "class-transformer";
+import { IsInt, IsOptional, IsString, Min } from "class-validator";
 
 export class CrearDocumentoVersionDto {
-
+  @Type(() => Number)
   @IsInt()
-  documento_id!: number;
-
-  @IsInt()
+  @Min(1)
   version_id!: number;
 
+  @Type(() => Number)
   @IsInt()
+  @Min(1)
   revision_id!: number;
-
-  @IsString()
-  ruta_archivo!: string;
 
   @IsOptional()
   @IsString()
   comentario?: string;
-
-  @IsInt()
-  usuario_id!: number;
-
 }

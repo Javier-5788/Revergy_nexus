@@ -9,10 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useProyecto } from "../../context/ProyectoContext";
-import {
-  dashboardService,
-  type ResumenProyecto,
-} from "../../services/dashboard.service";
+import { dashboardService, type ResumenProyecto, } from "../../services/dashboard.service";
 
 export default function DashboardPage() {
   const { proyectoActivo } = useProyecto();
@@ -20,7 +17,7 @@ export default function DashboardPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  // Ajusta a `proyectoActivo?.id_proyecto` si tu tipo usa `id_proyecto`
+  
   const proyectoId = proyectoActivo?.proyecto_id;
 
   useEffect(() => {
