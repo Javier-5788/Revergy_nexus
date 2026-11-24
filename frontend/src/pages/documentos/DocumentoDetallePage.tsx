@@ -18,6 +18,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useProyecto } from "../../context/ProyectoContext";
 import { documentoService } from "../../services/documento.service";
 import type { DocumentoDetalle } from "../../types/documento.types";
+import { comentarioService } from "../../services/comentario.service";
+import type { ComentarioDocumento } from "../../types/comentario.types";
+
 
 function fechaLegible(fecha: string) {
   return new Intl.DateTimeFormat("es-CO", {
@@ -33,6 +36,7 @@ export default function DocumentoDetallePage() {
   const [documento, setDocumento] = useState<DocumentoDetalle | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [comentarios, setComentarios] = useState<ComentarioDocumento[]>([]);
 
   useEffect(() => {
     const documentoId = Number(id);
@@ -53,6 +57,19 @@ export default function DocumentoDetallePage() {
           documentoId,
           idProyecto,
         );
+        const comentariosDocumento =
+          await comentarioService
+            .obtenerPorDocumento(
+              documentoId,
+            );
+
+        if (vigente) {
+
+          setComentarios(
+            comentariosDocumento,
+          );
+
+        }
         if (vigente) setDocumento(resultado);
       } catch {
         if (vigente) {
@@ -154,7 +171,83 @@ export default function DocumentoDetallePage() {
             <Typography variant="h5" sx={{ fontWeight: 700 }} gutterBottom>
               Historial de versiones
             </Typography>
+            <Box>
 
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700 }}
+                gutterBottom
+              >
+                Comentarios
+              </Typography>
+              {comentarios.length === 0 ? (
+                <Alert severity="info">
+                  Este documento no tiene comentarios.
+                </Alert>
+              ) : (
+                <Stack spacing={2}>
+                  {comentarios.map(
+                    (comentario) => (
+                      <Paper
+                        key={
+                          comentario.id_com_doc
+                        }
+                        sx={{
+                          p: 2,
+                          borderRadius: 3,
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                        >
+                          {comentario.mensaje}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            mt: 1,
+                          }}
+                        >
+                          Estado:
+                          {" "}
+                          {
+                            comentario
+                              .estado_comentario
+                              ?.nombre_estado
+                          }
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          Usuario:
+                          {" "}
+                          {
+                            comentario
+                              .usuario
+                              ?.nombre_usuario
+                          }
+
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          Fecha:
+                          {" "}
+                          {
+                            fechaLegible(
+                              comentario.fecha,
+                            )
+                          }
+                        </Typography>
+                      </Paper>
+                    ),
+                  )}
+                </Stack>
+              )}
+            </Box>
             {documento.documento_version.length === 0 ? (
               <Alert severity="info">
                 Todavía no hay versiones históricas registradas.

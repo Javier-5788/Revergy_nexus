@@ -55,7 +55,11 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
       <List className="sidebar-nav-list" disablePadding>
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const selected = location.pathname === item.path;
+          const selected =
+  item.path === "/"
+    ? location.pathname === "/"
+    : location.pathname.startsWith(item.path);
+
 
           return (
             <ListItemButton

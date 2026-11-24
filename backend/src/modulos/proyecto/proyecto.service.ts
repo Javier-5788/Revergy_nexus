@@ -39,7 +39,7 @@ export class ProyectoService {
     },
   };
 
-  const [totalDocumentos, comentariosAbiertos, comentariosAtendidos, totalTmt] =
+  const [totalDocumentos, comentariosAbiertos, comentariosAtendidos, comentariosCerrados, totalTmt] =
     await Promise.all([
       this.prisma.documento.count({
         where: { proyecto_id: proyectoId },
@@ -56,6 +56,12 @@ export class ProyectoService {
           estado_comentario: { is: { codigo_estado: "ATE" } },
         },
       }),
+      this.prisma.comentario_documento.count({
+        where: {
+          ...proyectoFiltro,
+          estado_comentario: { is: { codigo_estado: "CER" } },
+        },
+      }),
       this.prisma.tmt.count({
         where: { proyecto_id: proyectoId },
       }),
@@ -65,6 +71,7 @@ export class ProyectoService {
     totalDocumentos,
     comentariosAbiertos,
     comentariosAtendidos,
+    comentariosCerrados,
     totalTmt,
   };
 }

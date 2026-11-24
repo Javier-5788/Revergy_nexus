@@ -1,10 +1,27 @@
 import { api } from "./api";
 
 export interface ResumenProyecto {
+
   totalDocumentos: number;
+
+  documentosAbiertos: number;
+
+  documentosCerrados: number;
+
+  documentosVencidos: number;
+
+  documentosPendientesEntrega: number;
+
   comentariosAbiertos: number;
+
   comentariosAtendidos: number;
-  totalTmt: number;
+
+  comentariosCerrados: number;
+
+  tmtEmitidos: number;
+
+  tmtRecibidos: number;
+
 }
 
 export const dashboardService = {

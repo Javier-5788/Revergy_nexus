@@ -13,11 +13,14 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { extname } from "node:path";
+import { randomUUID } from "node:crypto";
+import { diskStorage } from "multer";
+import { extname, join } from "node:path";
 import type { Request as ExpressRequest, Response } from "express";
 import { DocumentoVersionService } from "./documento-version.service";
 import { CrearDocumentoVersionDto } from "./dto/crear-documento-version.dto";
 import { JwtAuthGuard } from "../autenticacion/guards/jwt-auth.guard";
+
 
 interface AuthenticatedRequest extends ExpressRequest {
   user: {
@@ -64,6 +67,15 @@ export class DocumentoVersionController {
   @Post("documento/:id")
   @UseInterceptors(
     FileInterceptor("archivo", {
+      storage: diskStorage({
+        destination: join(process.cwd(), "storage", "documento-version"),
+        filename: (_req, file, callback) => {
+          callback(
+            null,
+            `${randomUUID()}${extname(file.originalname).toLowerCase()}`,
+          );
+        },
+      }),
       limits: { fileSize: MAX_FILE_SIZE },
       fileFilter: (_req, file, callback) => {
         const extension = extname(file.originalname).toLowerCase();
