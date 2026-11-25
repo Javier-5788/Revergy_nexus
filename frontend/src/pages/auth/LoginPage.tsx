@@ -46,7 +46,7 @@ export default function LoginPage() {
         password,
       });
 
-      signIn(respuesta.access_token);
+      signIn(respuesta.access_token, respuesta.usuario,);
       navigate(destino, { replace: true });
     } catch (err) {
       const mensaje = (err as ErrorResponse).response?.data?.message;

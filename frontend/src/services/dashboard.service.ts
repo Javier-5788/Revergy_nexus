@@ -6,6 +6,8 @@ export interface ResumenProyecto {
 
   documentosAbiertos: number;
 
+  documentosRechazados: number;
+
   documentosCerrados: number;
 
   documentosVencidos: number;
