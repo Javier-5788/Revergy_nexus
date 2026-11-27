@@ -66,4 +66,19 @@ export const comentarioService = {
     return response.data;
   },
 
+  async obtenerPorProyecto(
+    proyectoId: number,
+  ) {
+
+    const response =
+      await api.get(
+        `/comentario-documento/proyecto/${proyectoId}`,
+      );
+
+    return response.data;
+
+  },
+
+  
+
 };

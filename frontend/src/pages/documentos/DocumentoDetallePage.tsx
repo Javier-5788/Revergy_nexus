@@ -21,7 +21,7 @@ import { useAuth } from "../../context/AuthContext";
 import { documentoService } from "../../services/documento.service";
 import { comentarioService } from "../../services/comentario.service";
 import { historialComentarioService } from "../../services/historial-comentario.service";
-
+import NuevaVersionDialog from "../../components/documentos/NuevaVersionDialog";
 import type { DocumentoDetalle } from "../../types/documento.types";
 import type { ComentarioDocumento } from "../../types/comentario.types";
 import type { HistorialComentario } from "../../types/historial-comentario.types";
@@ -63,6 +63,8 @@ export default function DocumentoDetallePage() {
   const { user } = useAuth();
 
   const [nuevoComentarioOpen, setNuevoComentarioOpen] = useState(false);
+
+  const [nuevaVersionOpen, setNuevaVersionOpen] = useState(false);
 
   async function verHistorial(
     comentarioId: number,
@@ -377,15 +379,36 @@ export default function DocumentoDetallePage() {
           </Paper>
 
           <Box>
-            <Typography
-              variant="h5"
+            <Box
               sx={{
-                fontWeight: 700,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
               }}
-              gutterBottom
             >
-              Historial de versiones
-            </Typography>
+
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 700,
+                }}
+              >
+                Historial de versiones
+              </Typography>
+
+              <Button
+                variant="contained"
+                onClick={() =>
+                  setNuevaVersionOpen(
+                    true,
+                  )
+                }
+              >
+                Nueva versión
+              </Button>
+
+            </Box>
 
             {documento.documento_version
               .length === 0 ? (
@@ -485,17 +508,17 @@ export default function DocumentoDetallePage() {
               }}
             >
 
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              Comentarios
-            </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                Comentarios
+              </Typography>
 
-            <Button
-              variant="contained"
-              onClick={() => setNuevoComentarioOpen(true)}
-            >
-              Nuevo comentario
-            </Button>
-          </Box>
+              <Button
+                variant="contained"
+                onClick={() => setNuevoComentarioOpen(true)}
+              >
+                Nuevo comentario
+              </Button>
+            </Box>
 
             {comentarios.length === 0 ? (
               <Alert severity="info">
@@ -530,9 +553,18 @@ export default function DocumentoDetallePage() {
             }
             onGuardar={crearComentario}
           />
+          <NuevaVersionDialog
+            open={nuevaVersionOpen}
+            onClose={() =>
+              setNuevaVersionOpen(
+                false,
+              )
+            }
+          />
         </>
-      )}
-    </Stack>
+      )
+      }
+    </Stack >
 
   );
 

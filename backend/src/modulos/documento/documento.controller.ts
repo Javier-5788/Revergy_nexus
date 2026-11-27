@@ -43,9 +43,6 @@ export class DocumentoController {
     );
   }
 
-
-
-
   @Post()
   crearDocumento(@Body() dto: CrearDocumentoDto, @Request() req) {
     return this.documentoService.crearDocumento(dto, req.user.userId);
@@ -55,4 +52,21 @@ export class DocumentoController {
   validarCodigoDocumento(@Body() dto: ValidarDocumentoDto) {
     return this.documentoService.validarNombreArchivo(dto.nombre_archivo);
   }
+  
+@Get(
+  "proyecto/:id/arbol",
+)
+obtenerArbol(
+  @Param(
+    "id",
+    ParseIntPipe,
+  )
+  proyectoId: number,
+) {
+  return this.documentoService
+    .obtenerArbol(
+      proyectoId,
+    );
+}
+
 }

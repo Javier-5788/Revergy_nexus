@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DashboardMetricCard from "../../components/dashboard/DashboardMetricCard";
 
+
 export default function DashboardPage() {
   const { proyectoActivo } = useProyecto();
   const [resumen, setResumen] = useState<ResumenProyecto | null>(null);
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const proyectoId = proyectoActivo?.proyecto_id;
+  
 
   useEffect(() => {
     if (!proyectoId) {
@@ -264,7 +266,7 @@ export default function DashboardPage() {
               sx={{ fontWeight: 700 }}
               gutterBottom
             >
-              Observaciones
+              Comentarios
             </Typography>
 
             <Paper

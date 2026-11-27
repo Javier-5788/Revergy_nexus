@@ -79,7 +79,7 @@ export default function LoginPage() {
         }}
       >
         <Typography variant="h3" sx={{ fontWeight: 800 }} gutterBottom>
-          REVERGY NEXUS
+          NEXUS
         </Typography>
         <Typography variant="h6" sx={{ fontWeight: 400 }}>
           Gestión documental y trazabilidad para proyectos de ingeniería.

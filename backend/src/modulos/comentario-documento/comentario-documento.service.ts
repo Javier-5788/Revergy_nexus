@@ -8,7 +8,7 @@ import { CrearComentarioDto } from './dto/crear-comentariodocumento.dto';
 
 @Injectable()
 export class ComentarioDocumentoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async crearComentario(dto: CrearComentarioDto) {
     return this.prisma.comentario_documento.create({
@@ -30,12 +30,36 @@ export class ComentarioDocumentoService {
       include: {
         usuario: true,
         estado_comentario: true,
+        categoria: true,
       },
       orderBy: {
         fecha: 'desc',
       },
     });
   }
+
+  async obtenerComentariosProyecto(
+  proyectoId: number,
+) {
+  return this.prisma
+    .comentario_documento
+    .findMany({
+      where: {
+        documento: {
+          proyecto_id:
+            proyectoId,
+        },
+      },
+      include: {
+        usuario: true,
+        estado_comentario: true,
+        documento: true,
+      },
+      orderBy: {
+        fecha: 'desc',
+      },
+    });
+}
 
   async atenderComentario(comentarioId: number, usuarioId: number) {
     const comentario = await this.prisma.comentario_documento.findUnique({
@@ -62,16 +86,45 @@ export class ComentarioDocumentoService {
       );
     }
 
-    return this.prisma.comentario_documento.update({
-      where: {
-        id_com_doc: comentarioId,
-      },
-      data: {
-        estado_comentario_id: 2,
-        usuario_atencion: usuarioId,
-        fecha_atencion: new Date(),
-      },
-    });
+    const estadoAnterior =
+      comentario.estado_comentario_id;
+
+    const comentarioActualizado =
+      await this.prisma.comentario_documento.update({
+        where: {
+          id_com_doc: comentarioId,
+        },
+        data: {
+          estado_comentario_id: 2,
+          usuario_atencion: usuarioId,
+          fecha_atencion: new Date(),
+        },
+      });
+
+    await this.prisma.historial_comentario.create({
+  data: {
+
+    comentario_id:
+      comentario.id_com_doc,
+
+    usuario_id:
+      usuarioId,
+
+    estado_anterior_id:
+      estadoAnterior,
+
+    estado_nuevo_id: 2,
+
+    observacion:
+      "Comentario atendido",
+
+    fecha_movimiento:
+      new Date(),
+
+  },
+});
+
+    return comentarioActualizado;
   }
 
   async cerrarComentario(comentarioId: number, usuarioId: number) {
@@ -93,15 +146,44 @@ export class ComentarioDocumentoService {
       );
     }
 
-    return this.prisma.comentario_documento.update({
-      where: {
-        id_com_doc: comentarioId,
-      },
-      data: {
-        estado_comentario_id: 3,
-        usuario_cierre: usuarioId,
-        fecha_cierre: new Date(),
-      },
-    });
+    const estadoAnterior =
+      comentario.estado_comentario_id;
+
+    const comentarioActualizado =
+      await this.prisma.comentario_documento.update({
+        where: {
+          id_com_doc: comentarioId,
+        },
+        data: {
+          estado_comentario_id: 3,
+          usuario_cierre: usuarioId,
+          fecha_cierre: new Date(),
+        },
+      });
+
+    await this.prisma.historial_comentario.create({
+  data: {
+
+    comentario_id:
+      comentario.id_com_doc,
+
+    usuario_id:
+      usuarioId,
+
+    estado_anterior_id:
+      estadoAnterior,
+
+    estado_nuevo_id: 3,
+
+    observacion:
+      "Comentario cerrado",
+
+    fecha_movimiento:
+      new Date(),
+
+  },
+});
+
+    return comentarioActualizado;
   }
 }

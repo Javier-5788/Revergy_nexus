@@ -14,7 +14,7 @@ import { CrearComentarioDto } from './dto/crear-comentariodocumento.dto';
 export class ComentarioDocumentoController {
   constructor(
     private readonly comentarioDocumentoService: ComentarioDocumentoService,
-  ) {}
+  ) { }
 
   @Post()
   crearComentario(@Body() dto: CrearComentarioDto) {
@@ -24,6 +24,15 @@ export class ComentarioDocumentoController {
   @Get('documento/:id')
   obtenerComentariosDocumento(@Param('id', ParseIntPipe) id: number) {
     return this.comentarioDocumentoService.obtenerComentariosDocumento(id);
+  }
+
+  @Get('proyecto/:id')
+  obtenerComentariosProyecto(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.comentarioDocumentoService
+      .obtenerComentariosProyecto(id);
   }
 
   @Patch(':id/atender')
@@ -41,4 +50,5 @@ export class ComentarioDocumentoController {
   ) {
     return this.comentarioDocumentoService.cerrarComentario(id, usuarioId);
   }
+
 }

@@ -33,64 +33,64 @@ export class DocumentoService {
   }
 
   async obtenerDocumentos(proyectoId: number, usuarioId: number) {
-  await this.verificarAccesoProyecto(proyectoId, usuarioId);
+    await this.verificarAccesoProyecto(proyectoId, usuarioId);
 
-  return this.prisma.documento.findMany({
-    where: { proyecto_id: proyectoId },
-    include: {
-      categoria: true,
-      fase: true,
-      infraestructura: true,
-      tipo_documento: true,
-      version: true,
-      revision: true,
-      estado_documento: true,
-    },
-    orderBy: {
-      fecha_creacion: "desc",
-    },
-  });
-}
-
-async obtenerDocumentoPorId(
-  id: number,
-  proyectoId: number,
-  usuarioId: number,
-) {
-  const documento = await this.prisma.documento.findUnique({
-    where: { id_documento: id },
-    select: { proyecto_id: true },
-  });
-
-  if (!documento || documento.proyecto_id !== proyectoId) {
-    throw new NotFoundException(`Documento con ID ${id} no encontrado`);
+    return this.prisma.documento.findMany({
+      where: { proyecto_id: proyectoId },
+      include: {
+        categoria: true,
+        fase: true,
+        infraestructura: true,
+        tipo_documento: true,
+        version: true,
+        revision: true,
+        estado_documento: true,
+      },
+      orderBy: {
+        fecha_creacion: "desc",
+      },
+    });
   }
 
-  await this.verificarAccesoProyecto(proyectoId, usuarioId);
+  async obtenerDocumentoPorId(
+    id: number,
+    proyectoId: number,
+    usuarioId: number,
+  ) {
+    const documento = await this.prisma.documento.findUnique({
+      where: { id_documento: id },
+      select: { proyecto_id: true },
+    });
 
-  return this.prisma.documento.findUnique({
-    where: { id_documento: id },
-    include: {
-      categoria: true,
-      fase: true,
-      infraestructura: true,
-      tipo_documento: true,
-      version: true,
-      revision: true,
-      estado_documento: true,
-      documento_version: {
-        orderBy: { fecha_carga: "desc" },
-        include: {
-          version: true,
-          revision: true,
-          usuario: {
-            select: { nombre_usuario: true },
+    if (!documento || documento.proyecto_id !== proyectoId) {
+      throw new NotFoundException(`Documento con ID ${id} no encontrado`);
+    }
+
+    await this.verificarAccesoProyecto(proyectoId, usuarioId);
+
+    return this.prisma.documento.findUnique({
+      where: { id_documento: id },
+      include: {
+        categoria: true,
+        fase: true,
+        infraestructura: true,
+        tipo_documento: true,
+        version: true,
+        revision: true,
+        estado_documento: true,
+        documento_version: {
+          orderBy: { fecha_carga: "desc" },
+          include: {
+            version: true,
+            revision: true,
+            usuario: {
+              select: { nombre_usuario: true },
+            },
           },
         },
       },
-    },
-  });
-}
+    });
+  }
 
   async crearDocumento(dto: CrearDocumentoDto, usuarioId: number) {
     await this.verificarAccesoProyecto(dto.proyecto_id, usuarioId);
@@ -147,6 +147,38 @@ async obtenerDocumentoPorId(
       ...resultado,
 
     };
+
+  }
+
+  async obtenerArbol(
+    proyectoId: number,
+  ) {
+
+    return this.prisma
+      .documento
+      .findMany({
+
+        where: {
+          proyecto_id:
+            proyectoId,
+        },
+
+        include: {
+
+          categoria: true,
+
+          tipo_documento: true,
+
+        },
+
+        orderBy: {
+
+          codigo_documento:
+            "asc",
+
+        },
+
+      });
 
   }
 }

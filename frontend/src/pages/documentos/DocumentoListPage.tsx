@@ -11,11 +11,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
-} from "@mui/material";
+  } from "@mui/material";
 import { useProyecto } from "../../context/ProyectoContext";
 import { documentoService } from "../../services/documento.service";
 import type { Documento } from "../../types/documento.types";
+import DocumentTree from "../../components/documentos/DocumentTree";
 
 export default function DocumentoListPage() {
   const { proyectoActivo } = useProyecto();
@@ -60,67 +60,164 @@ export default function DocumentoListPage() {
   }, [proyectoId]);
 
   return (
-    <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
-        Documentos
-      </Typography>
-      <Typography color="text.secondary" sx={{ mb: 3 }}>
-        Documentación de {proyectoActivo?.nombre_proyecto}
-      </Typography>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          lg: "300px 1fr",
+        },
+        gap: 3,
+      }}
+    >
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+      <DocumentTree
+  documentos={
+    documentos
+  }
+  onSelectDocumento={
+    (documentoId) =>
+      navigate(
+        `/documentos/${documentoId}`,
+      )
+  }
+/>
 
-      {cargando ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-          <CircularProgress />
-        </Box>
-      ) : error ? null : documentos.length === 0 ? (
-        <Alert severity="info">
-          Este proyecto todavía no tiene documentos registrados.
-        </Alert>
-      ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Código</TableCell>
-                <TableCell>Nombre</TableCell>
-                <TableCell>Tipo</TableCell>
-                <TableCell>Estado</TableCell>
-                <TableCell>Fecha de creación</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {documentos.map((documento) => (
-                <TableRow
-                  key={documento.id_documento}
-                  hover
-                  onClick={() => navigate(`/documentos/${documento.id_documento}`)}
-                  sx={{ cursor: "pointer" }}
-                >
-                  <TableCell>{documento.codigo_documento}</TableCell>
-                  <TableCell>{documento.nombre_documento}</TableCell>
+      <Box>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {cargando ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              py: 6,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : error ? null : documentos.length === 0 ? (
+          <Alert severity="info">
+            Este proyecto todavía no tiene documentos registrados.
+          </Alert>
+        ) : (
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: 3,
+            }}
+          >
+            <Table>
+
+              <TableHead>
+
+                <TableRow>
+
                   <TableCell>
-                    {documento.tipo_documento.nombre_documento}
+                    Código
                   </TableCell>
+
                   <TableCell>
-                    {documento.estado_documento.nombre_estado_documento}
+                    Nombre
                   </TableCell>
+
                   <TableCell>
-                    {new Intl.DateTimeFormat("es-CO", {
-                      dateStyle: "medium",
-                    }).format(new Date(documento.fecha_creacion))}
+                    Tipo
                   </TableCell>
+
+                  <TableCell>
+                    Estado
+                  </TableCell>
+
+                  <TableCell>
+                    Fecha de creación
+                  </TableCell>
+
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+
+              </TableHead>
+
+              <TableBody>
+
+                {documentos.map(
+                  (documento) => (
+
+                    <TableRow
+                      key={
+                        documento.id_documento
+                      }
+                      hover
+                      sx={{
+                        cursor:
+                          "pointer",
+                      }}
+                      onClick={() =>
+                        navigate(
+                          `/documentos/${documento.id_documento}`,
+                        )
+                      }
+                    >
+
+                      <TableCell>
+                        {
+                          documento.codigo_documento
+                        }
+                      </TableCell>
+
+                      <TableCell>
+                        {
+                          documento.nombre_documento
+                        }
+                      </TableCell>
+
+                      <TableCell>
+                        {
+                          documento
+                            .tipo_documento
+                            .nombre_documento
+                        }
+                      </TableCell>
+
+                      <TableCell>
+                        {
+                          documento
+                            .estado_documento
+                            .nombre_estado_documento
+                        }
+                      </TableCell>
+
+                      <TableCell>
+                        {new Intl.DateTimeFormat(
+                          "es-CO",
+                          {
+                            dateStyle:
+                              "medium",
+                          },
+                        ).format(
+                          new Date(
+                            documento.fecha_creacion,
+                          ),
+                        )}
+                      </TableCell>
+
+                    </TableRow>
+
+                  ),
+                )}
+
+              </TableBody>
+
+            </Table>
+          </TableContainer>
+        )}
+
+      </Box>
+
     </Box>
   );
 }
